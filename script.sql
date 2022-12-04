@@ -31,7 +31,6 @@ CREATE TABLE company_location
 CREATE TABLE sensor
 (
     id INTEGER PRIMARY KEY,
-    
     sensor_name TEXT,
     sensor_category TEXT,
     sensor_meta TEXT,
@@ -47,3 +46,11 @@ CREATE TABLE location_sensor
     FOREIGN KEY(location_id) REFERENCES location(id),
     FOREIGN KEY(sensor_id) REFERENCES sensor(id)
 );
+
+CREATE TABLE sensor_data
+{
+    id INTEGER PRIMARY KEY,
+    sensor_id INTEGER,
+    data TEXT,
+    FOREIGN KEY(sensor_id) REFERENCES sensor(id)
+};
