@@ -7,7 +7,7 @@ CREATE TABLE admin
 CREATE TABLE company(
     id INTEGER PRIMARY KEY,
     company_name TEXT,
-    company_apy_key TEXT);
+    company_api_key TEXT);
 
 
 CREATE TABLE location
