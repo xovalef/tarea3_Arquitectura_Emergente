@@ -128,11 +128,11 @@ def location():
     meta=request.json["meta"]
     try:
         cur = get_db().cursor()
-        sql = f"""SELECT company_api_key FROM company WHERE company_api_key='{token_j}';"""
+        sql = f"""SELECT id,company_api_key FROM company WHERE company_api_key='{token_j}';"""
         cur.execute(sql)
         ans = cur.fetchall()
         print(token_j)
-        if(ans[0][0] == token_j):
+        if(ans[0][1] == token_j):
             id_company=ans[0][0]
             cur = get_db().cursor()
             sql_insert = f"""
