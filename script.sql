@@ -16,17 +16,11 @@ CREATE TABLE location
     location_name TEXT,
     location_country TEXT,
     location_city TEXT,
-    location_meta TEXT
+    location_meta TEXT,
+    company_id INTEGER,
+    FOREIGN KEY(company_id) REFERENCES company(id)
 );
 
-CREATE TABLE company_location
-(
-    id INTEGER PRIMARY KEY,
-    company_id INTEGER,
-    location_id INTEGER,
-    FOREIGN KEY(company_id) REFERENCES company(id)
-    FOREIGN KEY(location_id) REFERENCES location(id)  
-);
 
 CREATE TABLE sensor
 (

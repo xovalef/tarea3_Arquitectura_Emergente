@@ -73,11 +73,11 @@ def protected():
     except:
         return make_response({"error": "Invalid token"}, 401)
 
+#Agregar una nueva comañia
 @app.route("/company",methods=["POST"])
 def company():
     token_j=request.json["token"]
     try:
-        print(token_j)
         data = jwt.decode(token_j, key=KEY, algorithms=['HS256'])
         if data['expiration'] < datetime.utcnow().timestamp():
             return make_response('Token expired', 401)
@@ -100,6 +100,7 @@ def company():
     except:
         return make_response({"error": "Invalid token"}, 401)
 
+#Mostrar toda la lista de company
 @app.route("/company", methods=["GET"])
 def listcompany():
     token = request.args.get('token')
@@ -117,9 +118,38 @@ def listcompany():
     except:
         return make_response({"error": "Invalid token"}, 401)
 
+#Agregar una nueva locación
+@app.route("/location", methods=["POST"])
+def location():
+    token_j=request.json["token"]
+    name = request.json["name"]
+    country=request.json["country"]
+    city=request.json["city"]
+    meta=request.json["meta"]
+    try:
+        cur = get_db().cursor()
+        sql = f"""SELECT company_api_key FROM company WHERE company_api_key='{token_j}';"""
+        cur.execute(sql)
+        ans = cur.fetchall()
+        print(token_j)
+        if(ans[0][0] == token_j):
+            id_company=ans[0][0]
+            cur = get_db().cursor()
+            sql_insert = f"""
+            INSERT INTO location (location_name,location_country,location_city,location_meta,company_id)
+            VALUES ('{name}','{country}','{city}','{meta}','{id_company}');"""
+            cur.execute(sql_insert)
+            get_db().commit()
+            
+
+            return jsonify({"message": "You are in the protected area"})
+        else:
+            return jsonify({"message": "API KEY not found."})
+    except:
+        return make_response({"error": "Invalid token"}, 401)
 
 @app.route("/location", methods=["GET"])
-def location():
+def listlocation():
     token = request.args.get('token')
     try:
         cur = get_db().cursor()
