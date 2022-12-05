@@ -103,20 +103,32 @@ def company():
 #Mostrar toda la lista de company
 @app.route("/company", methods=["GET"])
 def listcompany():
-    token = request.args.get('token')
+    token = request.args.get('token') #token admin
+    commpany_id = request.args.get('company_id') #id para obtener 1 compañia
     try:
-        print(token)
-        data = jwt.decode(token, key=KEY, algorithms=['HS256'])
-        if data['expiration'] < datetime.utcnow().timestamp():
-            return make_response('Token expired', 401)
-        cur = get_db().cursor()
-        sql = """SELECT * FROM company;"""
-        cur.execute(sql)
-        ans = cur.fetchall()
-        return jsonify({"message": "You are in the protected area","Lista":ans})
+        if(commpany_id):
+            cur=get_db().cursor()
+            sql=f"""SELECT * FROM company WHERE company.id='{commpany_id}';"""
+            cur.execute(sql)
+            ans = cur.fetchall()
+            return jsonify({"message": "Listando una company", "Datos company":ans})
+
+        else:
+            data = jwt.decode(token, key=KEY, algorithms=['HS256'])
+            if data['expiration'] < datetime.utcnow().timestamp():
+                return make_response('Token expired', 401)
+            cur = get_db().cursor()
+            sql = """SELECT * FROM company;"""
+            cur.execute(sql)
+            ans = cur.fetchall()
+            return jsonify({"message": "You are in the protected area","Lista":ans})
 
     except:
         return make_response({"error": "Invalid token"}, 401)
+
+#Mostrar una company
+
+
 
 #Agregar una nueva locación
 @app.route("/location", methods=["POST"])
