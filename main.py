@@ -96,7 +96,7 @@ def company():
         ans = cur.fetchall()
 
 
-        return jsonify({"message": "You are in the protected area", "company_api_key":company_api})
+        return jsonify({"message": "Compañia agregada correctamente", "company_api_key":company_api})
     except:
         return make_response({"error": "Invalid token"}, 401)
 
@@ -142,7 +142,7 @@ def location():
             get_db().commit()
             
 
-            return jsonify({"message": "You are in the protected area"})
+            return jsonify({"message": "Locación agregada correctamente."})
         else:
             return jsonify({"message": "API KEY not found."})
     except:
