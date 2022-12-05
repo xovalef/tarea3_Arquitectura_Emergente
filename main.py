@@ -73,35 +73,50 @@ def protected():
     except:
         return make_response({"error": "Invalid token"}, 401)
 
-@app.route("/addcompany",methods=["POST"])
-def addcompany():
+@app.route("/company",methods=["POST"])
+def company():
     token_j=request.json["token"]
-    #try:
-    print(token_j)
-    data = jwt.decode(token_j, key=KEY, algorithms=['HS256'])
-    if data['expiration'] < datetime.utcnow().timestamp():
-        return make_response('Token expired', 401)
+    try:
+        print(token_j)
+        data = jwt.decode(token_j, key=KEY, algorithms=['HS256'])
+        if data['expiration'] < datetime.utcnow().timestamp():
+            return make_response('Token expired', 401)
+        
+        nombre_company=request.json["company_name"]
+        company_api=jwt.encode({
+            "company_name":nombre_company
+        }, key=KEY)
+        sql_insert=f"""
+        INSERT INTO company (company_name,company_api_key)
+        VALUES ('{nombre_company}','{company_api}');
+        """
+        cur = get_db().cursor()
+        cur.execute(sql_insert)
+        get_db().commit()
+        ans = cur.fetchall()
+
+
+        return jsonify({"message": "You are in the protected area", "company_api_key":company_api})
+    except:
+        return make_response({"error": "Invalid token"}, 401)
+
+@app.route("/company", methods=["GET"])
+def listcompany():
+    token = request.args.get('token')
+    try:
+        print(token)
+        data = jwt.decode(token, key=KEY, algorithms=['HS256'])
+        if data['expiration'] < datetime.utcnow().timestamp():
+            return make_response('Token expired', 401)
+        cur = get_db().cursor()
+        sql = """SELECT * FROM company;"""
+        cur.execute(sql)
+        ans = cur.fetchall()
+        return jsonify({"message": "You are in the protected area","Lista":ans})
+
+    except:
+        return make_response({"error": "Invalid token"}, 401)
     
-    nombre_company=request.json["company_name"]
-    company_api=jwt.encode({
-        "company_name":nombre_company
-    }, key=KEY)
-    sql_insert=f"""
-    INSERT INTO company (company_name,company_api_key)
-    VALUES ('{nombre_company}','{company_api}');
-    """
-    cur = get_db().cursor()
-    cur.execute(sql_insert)
-    get_db().commit()
-    ans = cur.fetchall()
-
-
-    return jsonify({"message": "You are in the protected area", "company_api_key":company_api})
-    #except:
-    #    return make_response({"error": "Invalid token"}, 401)
-
-
-
 
 if __name__ == "__main__":
     app.run(debug=True)
