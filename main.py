@@ -116,7 +116,23 @@ def listcompany():
 
     except:
         return make_response({"error": "Invalid token"}, 401)
-    
+
+
+@app.route("/location", methods=["GET"])
+def location():
+    token = request.args.get('token')
+    try:
+        cur = get_db().cursor()
+        sql = f"""SELECT * FROM company WHERE company_api_key='{token}';"""
+        cur.execute(sql)
+        ans = cur.fetchall()
+        if(ans[0][2] == token):
+            print(ans[0][2])
+            return jsonify({"message": "You are in the protected area"})
+        else:
+            return jsonify({"message": "API KEY not found."})
+    except:
+        return make_response({"error": "Invalid token"}, 401)
 
 if __name__ == "__main__":
     app.run(debug=True)

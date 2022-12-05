@@ -31,20 +31,12 @@ CREATE TABLE company_location
 CREATE TABLE sensor
 (
     id INTEGER PRIMARY KEY,
+    location_id INTEGER,
     sensor_name TEXT,
     sensor_category TEXT,
     sensor_meta TEXT,
-    sensor_api_key TEXT
-    
-);
-
-CREATE TABLE location_sensor
-(
-    id INTEGER PRIMARY KEY,
-    location_id INTEGER,
-    sensor_id INTEGER,
-    FOREIGN KEY(location_id) REFERENCES location(id),
-    FOREIGN KEY(sensor_id) REFERENCES sensor(id)
+    sensor_api_key TEXT,
+    FOREIGN KEY(location_id) REFERENCES location(id)
 );
 
 CREATE TABLE sensor_data
