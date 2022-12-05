@@ -48,9 +48,9 @@ CREATE TABLE location_sensor
 );
 
 CREATE TABLE sensor_data
-{
+(
     id INTEGER PRIMARY KEY,
     sensor_id INTEGER,
     data TEXT,
     FOREIGN KEY(sensor_id) REFERENCES sensor(id)
-};
+);
