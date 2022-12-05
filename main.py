@@ -121,7 +121,7 @@ def listcompany():
 #Agregar una nueva locación
 @app.route("/location", methods=["POST"])
 def location():
-    token_j=request.json["token"]
+    token_j=request.json["token"] #company_api_key
     name = request.json["name"]
     country=request.json["country"]
     city=request.json["city"]
@@ -148,21 +148,28 @@ def location():
     except:
         return make_response({"error": "Invalid token"}, 401)
 
+#Mostrar lista completa
 @app.route("/location", methods=["GET"])
 def listlocation():
-    token = request.args.get('token')
+    token = request.args.get('token') #company_apy_key
     try:
         cur = get_db().cursor()
-        sql = f"""SELECT * FROM company WHERE company_api_key='{token}';"""
+        sql = f"""SELECT l.* 
+                FROM location as l,company as c 
+                WHERE l.company_id=c.id
+                AND c.company_api_key='{token}';"""
+        print (sql)
         cur.execute(sql)
+        print(sql)
         ans = cur.fetchall()
-        if(ans[0][2] == token):
-            print(ans[0][2])
-            return jsonify({"message": "You are in the protected area"})
+        if(len(ans) != 0):
+            return jsonify({"message": "You are in the protected area","Lista location":ans})
         else:
             return jsonify({"message": "API KEY not found."})
     except:
         return make_response({"error": "Invalid token"}, 401)
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
