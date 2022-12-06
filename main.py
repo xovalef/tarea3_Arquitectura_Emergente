@@ -76,7 +76,7 @@ def protected():
 #Agregar una nueva comañia
 @app.route("/company",methods=["POST"])
 def company():
-    token_j=request.json["token"]
+    token_j=request.json["token"] #Token del admin
     try:
         data = jwt.decode(token_j, key=KEY, algorithms=['HS256'])
         if data['expiration'] < datetime.utcnow().timestamp():
@@ -94,8 +94,6 @@ def company():
         cur.execute(sql_insert)
         get_db().commit()
         ans = cur.fetchall()
-
-
         return jsonify({"message": "Compañia agregada correctamente", "company_api_key":company_api})
     except:
         return make_response({"error": "Invalid token"}, 401)
@@ -106,14 +104,14 @@ def listcompany():
     token = request.args.get('token') #token admin
     commpany_id = request.args.get('company_id') #id para obtener 1 compañia
     try:
-        if(commpany_id):
+        if(commpany_id): #Mostrar una compañia
             cur=get_db().cursor()
             sql=f"""SELECT * FROM company WHERE company.id='{commpany_id}';"""
             cur.execute(sql)
             ans = cur.fetchall()
             return jsonify({"message": "Listando una company", "Datos company":ans})
 
-        else:
+        else: #Mostrar lista compañias
             data = jwt.decode(token, key=KEY, algorithms=['HS256'])
             if data['expiration'] < datetime.utcnow().timestamp():
                 return make_response('Token expired', 401)
@@ -126,7 +124,25 @@ def listcompany():
     except:
         return make_response({"error": "Invalid token"}, 401)
 
-#Mostrar una company
+#Update Company
+@app.route("/company",methods=["PUT"])
+def updatecompany():
+    token_j=request.json["token"] #Token del admin
+    id_company=request.json["id"] #id de la compañia
+    nombre=request.json["company_name"] #nombre compañia
+    try:
+        data = jwt.decode(token_j, key=KEY, algorithms=['HS256'])
+        if data['expiration'] < datetime.utcnow().timestamp():
+            return make_response('Token expired', 401)
+        cur=get_db().cursor()
+        sql_up=f"""UPDATE company SET company_name = '{nombre}' WHERE id='{id_company}';"""
+        cur.execute(sql_up)
+        get_db().commit()
+        return jsonify({"messaje": "Actualizacion completada."})
+    except:
+        return make_response({"error": "Invalid token"}, 401)
+
+
 
 
 
