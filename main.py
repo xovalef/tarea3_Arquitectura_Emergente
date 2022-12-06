@@ -328,6 +328,12 @@ def update_sensor():
     except:
         return make_response({"error": "Invalid token"}, 401)
 
+
+#Eliminar Sensor
+
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)
 
