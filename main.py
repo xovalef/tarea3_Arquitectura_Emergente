@@ -325,6 +325,18 @@ def update_sensor():
     except:
         return make_response({"error": "Invalid token"}, 401)
 
+# Delete Sensor
+@app.route("/sensor",methods=["DELETE"])
+def delete_sensor():
+    try:
+        sensor_token = request.json["sensor_token"]
+        cur = get_db().cursor()
+        sql_delete=f"""DELETE FROM sensor WHERE sensor_api_key='{sensor_token}';"""
+        cur.execute(sql_delete)
+        get_db().commit()
+        return jsonify({"message":"Eliminacion completada"})
+    except:
+        return make_response({"error": "Invalid token"}, 401)
 
 if __name__ == "__main__":
     app.run(debug=True)
