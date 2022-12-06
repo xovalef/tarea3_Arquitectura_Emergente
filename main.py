@@ -27,16 +27,6 @@ def close_connection(exception):
         db.close()
 
 
-@app.route("/")
-def index():
-    cur = get_db().cursor()
-    sql = """SELECT * FROM admin;"""
-    cur.execute(sql)
-    ans = cur.fetchall()
-
-    return ans
-
-
 @app.route("/login", methods=['POST'])
 def login():
     # auth = request.authorization
@@ -61,18 +51,6 @@ def login():
     }, key=KEY)
     return jsonify({"token": token})
 
-
-@app.route("/protected")
-def protected():
-    token = request.args.get('token')
-    try:
-        print(token)
-        data = jwt.decode(token, key=KEY, algorithms=['HS256'])
-        if data['expiration'] < datetime.utcnow().timestamp():
-            return make_response('Token expired', 401)
-        return jsonify({"message": "You are in the protected area"})
-    except:
-        return make_response({"error": "Invalid token"}, 401)
 
 # Agregar una nueva comañia
 
@@ -326,17 +304,20 @@ def update_sensor():
         return make_response({"error": "Invalid token"}, 401)
 
 # Delete Sensor
-@app.route("/sensor",methods=["DELETE"])
+
+
+@app.route("/sensor", methods=["DELETE"])
 def delete_sensor():
     try:
         sensor_token = request.json["sensor_token"]
         cur = get_db().cursor()
-        sql_delete=f"""DELETE FROM sensor WHERE sensor_api_key='{sensor_token}';"""
+        sql_delete = f"""DELETE FROM sensor WHERE sensor_api_key='{sensor_token}';"""
         cur.execute(sql_delete)
         get_db().commit()
-        return jsonify({"message":"Eliminacion completada"})
+        return jsonify({"message": "Eliminacion completada"})
     except:
         return make_response({"error": "Invalid token"}, 401)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
