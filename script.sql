@@ -36,6 +36,7 @@ CREATE TABLE sensor
 CREATE TABLE sensor_data
 (
     id INTEGER PRIMARY KEY,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     sensor_id INTEGER,
     data TEXT,
     FOREIGN KEY(sensor_id) REFERENCES sensor(id)

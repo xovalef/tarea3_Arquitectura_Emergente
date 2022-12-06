@@ -262,23 +262,28 @@ def create_sensor_data():
 
 @app.route("/sensor_data", methods=["GET"])
 def get_sensor_data():
-    sensor_api_key = request.args.get('token')
+    company_api_key = request.args.get('token')
+    date_from = request.args.get('from')
+    date_to = request.args.get('to')
+    filtered_sensors = [str(id) for id in request.args.get('sensor_id')]
     sql_query = f"""
-        SELECT id FROM sensor
-        WHERE sensor_api_key = '{
-            sensor_api_key
-        }';
+        SELECT sensor.id FROM sensor, location, company
+        WHERE company_api_key='{company_api_key}'
+        AND company.id = location.company_id
+        AND location.id = sensor.location_id;
     """
     cur = get_db().cursor()
     cur.execute(sql_query)
     ans = cur.fetchall()
-    sensor_id = ans[0][0]
+    sensors_id = [sensor[0]
+                  for sensor in ans if str(sensor[0]) in filtered_sensors]
     if len(ans) == 0:
         return make_response({"message": "Sensor not found"}, 404)
 
     sql_query = f"""
-        SELECT id, sensor_id, data FROM sensor_data
-        WHERE sensor_id = '{sensor_id}';
+        SELECT * FROM sensor_data
+        WHERE sensor_id in ({','.join([str(id) for id in sensors_id])})
+        AND created_at BETWEEN datetime({date_from}, 'unixepoch') AND datetime({date_to}, 'unixepoch');
     """
     cur = get_db().cursor()
     cur.execute(sql_query)
