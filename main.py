@@ -274,5 +274,27 @@ def create_sensor_data():
         return make_response({"message": "Invalid sensor API key"}, 401)
 
 
+#Actualizar Sensor
+@app.route("/sensor",methods=["PUT"])
+def update_sensor():
+    sensor_token = request.json["sensor_token"]
+    name = request.json["sensor_name"]
+    category=request.json["sensor_category"]
+    meta = request.json["sensor_meta"]
+    try:
+        cur = get_db().cursor()
+        print("hola")
+        sql_up = f"""UPDATE sensor SET sensor_name = '{name}', sensor_category='{category}',sensor_meta='{meta}' 
+        WHERE sensor_api_key='{sensor_token}';"""
+        print(sql_up)
+        cur.execute(sql_up)
+        print(sql_up)
+        get_db().commit()
+        return jsonify({"messaje": "Actualizacion completada."})
+    except:
+        return make_response({"error": "Invalid token"}, 401)
+
 if __name__ == "__main__":
     app.run(debug=True)
+
+
