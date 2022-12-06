@@ -299,7 +299,7 @@ def get_sensor_data():
         return make_response({"message": "Sensor not found"}, 404)
 
     sql_query = f"""
-        SELECT sensor_id, data FROM sensor_data
+        SELECT id, sensor_id, data FROM sensor_data
         WHERE sensor_id = '{sensor_id}';
     """
     cur = get_db().cursor()
@@ -308,12 +308,12 @@ def get_sensor_data():
     return jsonify({"data": ans})
 
 
-#Actualizar Sensor
-@app.route("/sensor",methods=["PUT"])
+# Actualizar Sensor
+@app.route("/sensor", methods=["PUT"])
 def update_sensor():
     sensor_token = request.json["sensor_token"]
     name = request.json["sensor_name"]
-    category=request.json["sensor_category"]
+    category = request.json["sensor_category"]
     meta = request.json["sensor_meta"]
     try:
         cur = get_db().cursor()
@@ -326,9 +326,5 @@ def update_sensor():
         return make_response({"error": "Invalid token"}, 401)
 
 
-
-
 if __name__ == "__main__":
     app.run(debug=True)
-
-
