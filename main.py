@@ -3,6 +3,7 @@ import sqlite3
 from flask import g
 import jwt
 from datetime import datetime, timedelta
+from json import dumps
 
 DATABASSE = './tarea3.db'
 
@@ -257,10 +258,9 @@ def create_sensor():
 @app.route("/sensor_data", methods=["POST"])
 def create_sensor_data():
     sensor_api_key = request.json["token"]
-    sensor_id = request.json["sensor_id"]
     sensor_data = request.json["data"]
     sql_query = f"""
-        SELECT sensor_api_key FROM sensor
+        SELECT id FROM sensor
         WHERE sensor_api_key = '{
             sensor_api_key
         }';
@@ -268,10 +268,44 @@ def create_sensor_data():
     cur = get_db().cursor()
     cur.execute(sql_query)
     ans = cur.fetchall()
+    sensor_id = ans[0][0]
     if len(ans) == 0:
         return make_response({"message": "Sensor not found"}, 404)
-    if ans[0][0] != sensor_api_key:
-        return make_response({"message": "Invalid sensor API key"}, 401)
+
+    cur = get_db().cursor()
+    sql_insert = f"""
+        INSERT INTO sensor_data (sensor_id, data)
+        VALUES ('{sensor_id}', '{dumps(sensor_data)}');
+    """
+    cur.execute(sql_insert)
+    get_db().commit()
+    return jsonify({"message": "Sensor data agregado correctamente."})
+
+
+@app.route("/sensor_data", methods=["GET"])
+def get_sensor_data():
+    sensor_api_key = request.args.get('token')
+    sql_query = f"""
+        SELECT id FROM sensor
+        WHERE sensor_api_key = '{
+            sensor_api_key
+        }';
+    """
+    cur = get_db().cursor()
+    cur.execute(sql_query)
+    ans = cur.fetchall()
+    sensor_id = ans[0][0]
+    if len(ans) == 0:
+        return make_response({"message": "Sensor not found"}, 404)
+
+    sql_query = f"""
+        SELECT sensor_id, data FROM sensor_data
+        WHERE sensor_id = '{sensor_id}';
+    """
+    cur = get_db().cursor()
+    cur.execute(sql_query)
+    ans = cur.fetchall()
+    return jsonify({"data": ans})
 
 
 #Actualizar Sensor
