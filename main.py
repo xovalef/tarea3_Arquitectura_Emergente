@@ -106,19 +106,49 @@ def company():
 
 @app.route("/company", methods=["GET"])
 def listcompany():
-    token = request.args.get('token')
+    token = request.args.get('token')  # token admin
+    commpany_id = request.args.get('company_id')  # id para obtener 1 compañia
     try:
-        data = jwt.decode(token, key=KEY, algorithms=['HS256'])
-        if data['expiration'] < datetime.utcnow().timestamp():
-            return make_response('Token expired', 401)
-        cur = get_db().cursor()
-        sql = """SELECT * FROM company;"""
-        cur.execute(sql)
-        ans = cur.fetchall()
-        return jsonify({"companias": ans})
+        if (commpany_id):
+            cur = get_db().cursor()
+            sql = f"""SELECT * FROM company WHERE company.id='{commpany_id}';"""
+            cur.execute(sql)
+            ans = cur.fetchall()
+            return jsonify({"message": "Listando una company", "Datos company": ans})
+
+        else:
+            data = jwt.decode(token, key=KEY, algorithms=['HS256'])
+            if data['expiration'] < datetime.utcnow().timestamp():
+                return make_response('Token expired', 401)
+            cur = get_db().cursor()
+            sql = """SELECT * FROM company;"""
+            cur.execute(sql)
+            ans = cur.fetchall()
+            return jsonify({"message": "You are in the protected area", "Lista": ans})
 
     except:
         return make_response({"error": "Invalid token"}, 401)
+
+# Update Company
+
+
+@app.route("/company", methods=["PUT"])
+def updatecompany():
+    token_j = request.json["token"]  # Token del admin
+    id_company = request.json["id"]  # id de la compañia
+    nombre = request.json["company_name"]  # nombre compañia
+    try:
+        data = jwt.decode(token_j, key=KEY, algorithms=['HS256'])
+        if data['expiration'] < datetime.utcnow().timestamp():
+            return make_response('Token expired', 401)
+        cur = get_db().cursor()
+        sql_up = f"""UPDATE company SET company_name = '{nombre}' WHERE id='{id_company}';"""
+        cur.execute(sql_up)
+        get_db().commit()
+        return jsonify({"messaje": "Actualizacion completada."})
+    except:
+        return make_response({"error": "Invalid token"}, 401)
+
 
 # Agregar una nueva locación
 
@@ -222,6 +252,26 @@ def create_sensor():
     cur.execute(sql_insert)
     get_db().commit()
     return jsonify({"message": "Sensor agregado correctamente.", "sensor_api_key": sensor_api_key})
+
+
+@app.route("/sensor_data", methods=["POST"])
+def create_sensor_data():
+    sensor_api_key = request.json["token"]
+    sensor_id = request.json["sensor_id"]
+    sensor_data = request.json["data"]
+    sql_query = f"""
+        SELECT sensor_api_key FROM sensor
+        WHERE sensor_api_key = '{
+            sensor_api_key
+        }';
+    """
+    cur = get_db().cursor()
+    cur.execute(sql_query)
+    ans = cur.fetchall()
+    if len(ans) == 0:
+        return make_response({"message": "Sensor not found"}, 404)
+    if ans[0][0] != sensor_api_key:
+        return make_response({"message": "Invalid sensor API key"}, 401)
 
 
 if __name__ == "__main__":
