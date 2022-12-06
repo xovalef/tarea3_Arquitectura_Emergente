@@ -317,19 +317,13 @@ def update_sensor():
     meta = request.json["sensor_meta"]
     try:
         cur = get_db().cursor()
-        print("hola")
         sql_up = f"""UPDATE sensor SET sensor_name = '{name}', sensor_category='{category}',sensor_meta='{meta}' 
         WHERE sensor_api_key='{sensor_token}';"""
-        print(sql_up)
         cur.execute(sql_up)
-        print(sql_up)
         get_db().commit()
         return jsonify({"messaje": "Actualizacion completada."})
     except:
         return make_response({"error": "Invalid token"}, 401)
-
-
-#Eliminar Sensor
 
 
 
